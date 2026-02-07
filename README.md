@@ -1,59 +1,722 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# EventLite API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A modern, production-ready REST API for managing events and bookings with JWT authentication, role-based access control, and comprehensive API documentation.
 
-## About Laravel
+## 🎯 Overview
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+EventLite API provides a complete solution for event management and booking with:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **JWT Authentication** - Secure token-based authentication with 24-hour expiration
+- **Role-Based Access Control** - Admin and user roles with fine-grained permissions
+- **Event Management** - Create, read, update, and delete events
+- **Booking System** - Reserve seats with automatic capacity management
+- **Race Condition Prevention** - Database transactions ensure data consistency
+- **Interactive API Documentation** - Swagger UI at `/docs` for testing endpoints
+- **Comprehensive Tests** - 32 test cases with 106 assertions
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 📋 Requirements
 
-## Learning Laravel
+### System Requirements
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+| Component | Minimum | Recommended |
+|-----------|---------|-------------|
+| **PHP** | 8.2 | 8.2+ |
+| **MySQL** | 8.0 | 8.0+ |
+| **Composer** | 2.0 | Latest |
+| **Node.js** | 16 | 18+ (optional) |
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Windows/WSL Setup
 
-## Laravel Sponsors
+If using **Windows Subsystem for Linux (WSL)**:
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```bash
+# Install WSL2 (Windows 10/11)
+wsl --install
 
-### Premium Partners
+# Inside WSL, install dependencies
+sudo apt update
+sudo apt install php8.2 php8.2-mysql php8.2-xml php8.2-mbstring
+sudo apt install mysql-server mysql-client
+sudo apt install composer
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### macOS Setup
 
-## Contributing
+```bash
+# Using Homebrew
+brew install php@8.2 mysql composer
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+# Start MySQL
+brew services start mysql
+```
 
-## Code of Conduct
+### Linux Setup
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+# Ubuntu/Debian
+sudo apt update
+sudo apt install php8.2 php8.2-mysql php8.2-xml php8.2-mbstring mysql-server composer
+```
 
-## Security Vulnerabilities
+## 🚀 Installation & Setup
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### Step 1: Clone the Repository
 
-## License
+```bash
+git clone https://github.com/ramsharanyadav/EventLite-API.git
+cd eventlite-api
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Step 2: Install PHP Dependencies
+
+```bash
+composer install
+```
+
+### Step 3: Environment Configuration
+
+```bash
+# Copy example environment file
+cp .env.example .env
+
+# Generate application key
+php artisan key:generate
+
+# Generate JWT secret
+php artisan jwt:secret
+```
+
+### Step 4: Configure Database
+
+Edit `.env` and set your database credentials:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=event_lite
+DB_USERNAME=root
+DB_PASSWORD=your_password
+```
+
+Create the database (if not exists):
+
+```bash
+mysql -u root -p -e "CREATE DATABASE event_lite CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+```
+
+### Step 5: Run Migrations
+
+```bash
+php artisan migrate
+```
+
+This creates the following tables:
+- `users` - User accounts with roles
+- `events` - Event listings
+- `bookings` - Event reservations
+- Plus Laravel system tables (cache, sessions, jobs)
+
+### Step 6: Seed Sample Data (Optional)
+
+```bash
+php artisan db:seed
+```
+
+This creates:
+- **1 Admin User:** admin@eventlite.test / password
+- **5 Regular Users:** Generated via factory
+- **2 Named Events:** Laravel Conference 2026, Web Development Workshop
+- **8 Random Events:** Generated via factory
+
+### Step 7: Generate API Documentation
+
+```bash
+php artisan l5-swagger:generate
+```
+
+### Step 8: Start Development Server
+
+```bash
+php artisan serve
+```
+
+The API will be available at: **http://localhost:8000**
+
+---
+
+## 📚 API Documentation
+
+### Interactive Swagger UI
+
+**URL:** [http://localhost:8000/docs](http://localhost:8000/docs)
+
+Features:
+- Try-it-out functionality for all endpoints
+- Real-time request/response testing
+- Schema definitions and examples
+- Built-in authorization using JWT tokens
+
+### OpenAPI Specification
+
+**URL:** http://localhost:8000/api/documentation
+
+JSON format suitable for:
+- Postman import
+- Code generation
+- API client libraries
+
+---
+
+## 🔐 JWT Authentication
+
+### Obtaining a JWT Token
+
+#### Option 1: Register a New User
+
+```bash
+curl -X POST http://localhost:8000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Ramsharan Yadav",
+    "email": "ramshara@eventlite.com",
+    "password": "password123",
+    "password_confirmation": "password123",
+    "role": "user" // optional : admin / user (default)
+  }'
+```
+
+Response:
+```json
+{
+    "message": "User registered successfully",
+    "user": {
+        "name": "Ramsharan Yadav",
+        "email": "ramshara@eventlite.com",
+        "role": "user",
+        "updated_at": "2026-02-07T07:07:26.000000Z",
+        "created_at": "2026-02-07T07:07:26.000000Z",
+        "id": 28
+    },
+    "token": "eyJ0eXAiOiJK....."
+}
+```
+
+#### Option 2: Login with Existing Account
+
+```bash
+curl -X POST http://localhost:8000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "ramshara@eventlite.com",
+    "password": "password123"
+  }'
+```
+
+Response:
+```json
+{
+  "token": "eyJ0eXAiOiJKV1QiLCJhbGc...",
+  "type": "bearer",
+  "expires_in": 86400
+}
+```
+
+### Using the Token
+
+Include the token in the `Authorization` header for all protected requests:
+
+```bash
+Authorization: Bearer <your_token_here>
+```
+
+### Token Refresh
+
+Tokens expire after 24 hours. Refresh without re-authenticating:
+
+```bash
+curl -X POST http://localhost:8000/api/auth/refresh \
+  -H "Authorization: Bearer <old_token>"
+```
+
+---
+
+## 📖 Example cURL Commands
+
+### 1. Get Your User Profile
+
+```bash
+TOKEN="your_jwt_token_here"
+
+curl -X POST http://localhost:8000/api/auth/me \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+### 2. List Upcoming Events (Public)
+
+```bash
+curl -X GET http://localhost:8000/api/events | jq
+```
+
+### 3. Get Event Details
+
+```bash
+curl -X GET http://localhost:8000/api/events/1 | jq
+```
+
+### 4. Create an Event (Admin Only)
+
+```bash
+TOKEN="your_admin_token_here"
+
+curl -X POST http://localhost:8000/api/events \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Tech Summit 2026",
+    "starts_at": "2026-04-15 09:00:00",
+    "capacity": 200
+  }'
+```
+
+### 5. Update an Event (Admin Only)
+
+```bash
+TOKEN="your_admin_token_here"
+
+curl -X PATCH http://localhost:8000/api/events/1 \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Updated Summit Title",
+    "capacity": 250
+  }'
+```
+
+### 6. Delete an Event (Admin Only)
+
+```bash
+TOKEN="your_admin_token_here"
+
+curl -X DELETE http://localhost:8000/api/events/1 \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+### 7. Book an Event (Authenticated Users)
+
+```bash
+TOKEN="your_user_token_here"
+
+curl -X POST http://localhost:8000/api/events/1/book \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+### 8. View Your Bookings
+
+```bash
+TOKEN="your_user_token_here"
+
+curl -X GET http://localhost:8000/api/me/bookings \
+  -H "Authorization: Bearer $TOKEN" | jq
+```
+
+### 9. Logout
+
+```bash
+TOKEN="your_token_here"
+
+curl -X POST http://localhost:8000/api/auth/logout \
+  -H "Authorization: Bearer $TOKEN"
+```
+
+---
+
+## 🧪 Testing
+
+### Run All Tests
+
+```bash
+php artisan test
+```
+
+Expected output:
+```
+Tests:    32 passed (106 assertions)
+Duration: 4.49s
+```
+
+### Run Specific Test Suite
+
+```bash
+# Authentication tests
+php artisan test --filter=AuthTest
+
+# Event tests
+php artisan test --filter=EventTest
+
+# Booking tests
+php artisan test --filter=BookingTest
+```
+
+### Run Tests with Coverage
+
+```bash
+php artisan test --coverage
+```
+
+---
+
+## 🗄️ Database Management
+
+### Run Migrations Only
+
+```bash
+php artisan migrate
+```
+
+### Reset Database (Fresh + Seed)
+
+```bash
+php artisan migrate:fresh --seed
+```
+
+### Rollback Last Migration Batch
+
+```bash
+php artisan migrate:rollback
+```
+
+### Create New Migration
+
+```bash
+php artisan make:migration create_table_name
+```
+
+---
+
+## 🛠️ Common Commands
+
+```bash
+# Clear all caches
+php artisan cache:clear
+php artisan config:clear
+
+# View registered routes
+php artisan route:list --path=api
+
+# Interactive shell (Tinker)
+php artisan tinker
+
+# Regenerate Swagger docs
+php artisan l5-swagger:generate
+
+# Generate new API key
+php artisan key:generate
+
+# Generate JWT secret
+php artisan jwt:secret
+```
+
+---
+
+## 📁 Project Structure
+
+```
+eventlite-api/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── Api/
+│   │   │   │   ├── AuthController.php       # Authentication endpoints
+│   │   │   │   ├── EventController.php      # Event CRUD endpoints
+│   │   │   │   └── BookingController.php    # Booking endpoints
+│   │   │   └── Controller.php               # Base controller with schemas
+│   │   └── Middleware/
+│   │       └── AdminMiddleware.php          # Admin authorization
+│   └── Models/
+│       ├── User.php
+│       ├── Event.php
+│       └── Booking.php
+├── database/
+│   ├── migrations/
+│   ├── factories/
+│   └── seeders/
+├── routes/
+│   ├── api.php                              # All API routes
+│   └── web.php
+├── tests/
+│   ├── Feature/
+│   └── TestCase.php
+├── config/
+│   ├── auth.php                             # JWT guard config
+│   ├── swagger.php
+│   └── ...
+├── storage/
+│   └── api-docs/
+│       └── api-docs.json                    # Generated Swagger spec
+├── .env.example
+├── artisan
+├── composer.json
+├── phpunit.xml
+└── README.md
+```
+
+---
+
+## 🔑 Sample Credentials
+
+After running `php artisan db:seed`:
+
+**Admin Account:**
+```
+Email: admin@eventlite.test
+Password: password
+Role: admin
+```
+
+Use these credentials to test admin-only endpoints.
+
+---
+
+## 🚀 API Endpoints Summary
+
+### Authentication (5 endpoints)
+```
+POST   /api/auth/register      Register new user
+POST   /api/auth/login         Login user
+POST   /api/auth/me            Get current user
+POST   /api/auth/logout        Logout user
+POST   /api/auth/refresh       Refresh JWT token
+```
+
+### Events (5 endpoints)
+```
+GET    /api/events             List upcoming events
+GET    /api/events/{id}        Get event details
+POST   /api/events             Create event (admin)
+PATCH  /api/events/{id}        Update event (admin)
+DELETE /api/events/{id}        Delete event (admin)
+```
+
+### Bookings (2 endpoints)
+```
+POST   /api/events/{id}/book   Book an event
+GET    /api/me/bookings        View user's bookings
+```
+
+---
+
+## 🔐 Security Features
+
+✅ **JWT Authentication**
+- Tokens expire after 24 hours
+- Secure Bearer token scheme
+- Token refresh without re-authentication
+
+✅ **Admin Middleware**
+- Role-based access control
+- Returns 403 Forbidden for unauthorized access
+- Applied automatically to protected routes
+
+✅ **Password Security**
+- Bcrypt hashing (never stored in plain text)
+- Minimum 6 characters required
+- Password confirmation on registration
+
+✅ **Database Security**
+- Transactions for atomicity
+- Pessimistic locking for concurrent access
+- Unique constraints prevent duplicates
+
+---
+
+## 📊 API Performance
+
+- Response time: < 50ms average
+- Concurrent requests: Supported via locking
+- Database queries: Optimized with eager loading
+- Rate limiting: Configurable per endpoint
+
+---
+
+## 🐛 Troubleshooting
+
+### Port 8000 Already in Use
+
+```bash
+# Find process using port 8000
+lsof -i :8000
+
+# Use different port
+php artisan serve --port=8001
+```
+
+### JWT Secret Not Set
+
+```bash
+php artisan jwt:secret
+```
+
+### Database Connection Error
+
+```bash
+# Check MySQL is running
+mysql -u root -p
+
+# Verify credentials in .env
+php artisan db:show
+```
+
+### Swagger Docs Not Loading
+
+```bash
+php artisan l5-swagger:generate
+
+# Clear cache if needed
+php artisan cache:clear
+```
+
+---
+
+## 📚 Additional Resources
+
+- **Full API Reference:** [API_DOCUMENTATION.md](API_DOCUMENTATION.md)
+- **Project Overview:** [README_FULL.md](README_FULL.md)
+- **Documentation Summary:** [DOCUMENTATION_SUMMARY.md](DOCUMENTATION_SUMMARY.md)
+- **Interactive Docs:** http://localhost:8000/docs
+- **Laravel Documentation:** https://laravel.com/docs/10.x
+- **JWT Auth Package:** https://github.com/tymondesigns/jwt-auth
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 📝 Development Workflow
+
+### Make Code Changes
+
+```bash
+# Edit files in your editor
+# Test changes locally
+php artisan test
+```
+
+### Database Changes
+
+```bash
+# Create new migration
+php artisan make:migration migration_name
+
+# Run migrations
+php artisan migrate
+```
+
+### Testing Changes
+
+```bash
+# Run all tests
+php artisan test
+
+# Run specific test
+php artisan test tests/Feature/YourTest.php
+```
+
+### Before Committing
+
+```bash
+# Verify tests pass
+php artisan test
+
+# Clear caches
+php artisan cache:clear
+php artisan config:clear
+
+# Commit changes
+git add .
+git commit -m "Describe your changes"
+```
+
+---
+
+## 📜 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+---
+
+## 👥 Author
+
+**EventLite Development Team**
+
+Created: February 2026  
+Last Updated: February 7, 2026
+
+---
+
+## 🎉 Getting Started Quick Reference
+
+```bash
+# 1. Clone and setup
+git clone https://github.com/yourusername/eventlite-api.git
+cd eventlite-api
+composer install
+cp .env.example .env
+
+# 2. Generate secrets
+php artisan key:generate
+php artisan jwt:secret
+
+# 3. Configure database in .env
+# DB_DATABASE=event_lite
+# DB_USERNAME=root
+# DB_PASSWORD=your_password
+
+# 4. Run setup
+php artisan migrate
+php artisan db:seed
+
+# 5. Generate docs
+php artisan l5-swagger:generate
+
+# 6. Start server
+php artisan serve
+
+# 7. Access the API
+# Browser: http://localhost:8000/docs
+# API: http://localhost:8000/api
+```
+
+---
+
+## ✅ Verification
+
+Verify everything is working:
+
+```bash
+# 1. Run tests
+php artisan test
+
+# 2. Login test
+curl -X POST http://localhost:8000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@eventlite.test","password":"password"}'
+
+# 3. Check Swagger UI
+# Open http://localhost:8000/docs in browser
+```
+
+---
+
+**Happy API building! 🚀**
+
+For issues or questions, please check the documentation files or open an issue on GitHub.
